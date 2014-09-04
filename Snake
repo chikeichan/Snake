@@ -1,0 +1,419 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+    <style>
+      td {
+        text-align:center;
+        height: 20px;
+        width: 10px;
+        border: 1px solid grey;
+        
+      }
+      th{
+        border: 1px solid black;
+      }
+      
+      div{
+        border-radius: 2px;
+        text-align:center;
+        border: 1px solid grey;
+        vertical-align:middle;
+        position: relative;
+        display:inline-block;
+        float: left;
+        }
+      
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+      //Global Variables
+      var mark = '<font color="black">&#x25a0</font>';
+      var apple = "<font color='red'>&#9679</font>"
+      var currentSnake = [[1,3],[1,2],[1,1]];
+      var rate = 200;
+      var lastMove = "right";
+      var lastKey = 0;
+      var movingRight;
+      var movingLeft;
+      var movingUp;
+      var movingDown;
+      
+      //Draw an array of coor with inputed string
+      function drawSnake(arr,str){
+        for(i=0;i<arr.length;i++){
+            var x = arr[i][0];
+            var y = arr[i][1];
+            var coor = "#"+x+"x>#"+y+"c"
+            $(coor).html(str);
+        }
+      }
+      
+      //move snake to the right
+      function moveRight(){
+        var x = currentSnake[0][0];
+        var y = currentSnake[0][1];
+        var newSnake = [[x,y+1]];
+        
+        for (i=0;i<currentSnake.length-1;i++){
+            newSnake.push([currentSnake[i][0],currentSnake[i][1]]);
+        };
+        
+        
+        if(hitWall(newSnake)==''){
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+        } else if (hitWall(newSnake)=='apple'){
+            newSnake.push([currentSnake[currentSnake.length-1][0],currentSnake[currentSnake.length-1][1]])
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+            generateFruit();
+        }
+      }
+      
+      
+      
+      //move snake to the down
+      function moveDown(){
+        var x = currentSnake[0][0];
+        var y = currentSnake[0][1];
+        var newSnake = [[x+1,y]];
+        
+        for (i=0;i<currentSnake.length-1;i++){
+            newSnake.push([currentSnake[i][0],currentSnake[i][1]]);
+        };
+        
+        
+        if(hitWall(newSnake)==''){
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+        } else if (hitWall(newSnake)=='apple'){
+            newSnake.push([currentSnake[currentSnake.length-1][0],currentSnake[currentSnake.length-1][1]])
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+            generateFruit();
+        }
+      }
+      
+      //move snake to the Up
+      function moveUp(){
+        var x = currentSnake[0][0];
+        var y = currentSnake[0][1];
+        var newSnake = [[x-1,y]];
+        
+        for (i=0;i<currentSnake.length-1;i++){
+            newSnake.push([currentSnake[i][0],currentSnake[i][1]]);
+        };
+        
+        
+        if(hitWall(newSnake)==''){
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+        } else if (hitWall(newSnake)=='apple'){
+            newSnake.push([currentSnake[currentSnake.length-1][0],currentSnake[currentSnake.length-1][1]])
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+            generateFruit();
+        }
+        
+      }
+      
+      
+      //move snake to left
+      function moveLeft(){
+        var x = currentSnake[0][0];
+        var y = currentSnake[0][1];
+        var newSnake = [[x,y-1]];
+        
+        for (i=0;i<currentSnake.length-1;i++){
+            newSnake.push([currentSnake[i][0],currentSnake[i][1]]);
+        };
+        
+       
+        
+        if(hitWall(newSnake)==''){
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+        } else if (hitWall(newSnake)=='apple'){
+            newSnake.push([currentSnake[currentSnake.length-1][0],currentSnake[currentSnake.length-1][1]])
+            drawSnake(currentSnake,'');
+            drawSnake(newSnake,mark);
+            currentSnake = newSnake;
+            generateFruit();
+        }
+      }
+      
+      
+      //return if hit wall, apple, or nothing
+      function hitWall(arr){
+        var a = arr[0][0];
+        var b = arr[0][1];
+        var coor = "#"+a+"x>#"+b+"c";
+        var value;
+        
+        if(typeof $(coor).html() == "string") {
+            value = $(coor).html().slice(13,16);
+            console.log(value);
+        }
+        
+        if(value=="red"){ 
+          
+          return "apple";
+          
+        
+        } else if($(coor).html()!=''){
+            currentSnake = [];
+          
+          $("body").append('<div id="gameover" style="margin: -220px 0px 0px 0px; height: 150px; color=grey; width: 250px; background-color:; border: 0px dashed red"><font size="15" color="red"><p style="margin:14px 0px 0px 0px">GAME OVER</p></font></div>');
+        
+        
+        clearInterval(movingRight);
+        clearInterval(movingUp);
+        clearInterval(movingDown);
+        clearInterval(movingLeft);
+          
+        return 'wall';
+        }
+        
+        return "";
+        
+        
+        
+        
+      }
+      
+      //Generate snake fruit on empty spot
+      function generateFruit() {
+        var empty = [];
+        for(i=0;i<10;i++){
+          for(j=0;j<10;j++){
+            var coor = "#"+i+"x>#"+j+"c";
+            if($(coor).html()==''){
+                empty.push([i,j]);
+            }
+            
+          }
+        }
+        
+        var prob = Math.floor(Math.random()*empty.length);
+        var x = empty[prob][0];
+        var y = empty[prob][1];
+        coor = "#"+x+"x>#"+y+"c";
+        $(coor).html(apple);
+      }
+      
+      
+      //execute movement when arrow key is pressed
+      $(document).ready(function(){
+        $("body").keydown(function(e){
+        // left arrow
+            if ((e.keyCode || e.which) == 37 && lastMove!='right'){   
+                clearInterval(movingLeft);
+                moveLeft();
+                movingLeft = setInterval(function(){
+                    moveLeft();
+                },rate);
+                lastMove = "left"
+                clearInterval(movingRight);
+                clearInterval(movingUp);
+                clearInterval(movingDown);
+
+            }
+        // right arrow
+            if ((e.keyCode || e.which) == 39 && lastMove!='left'){
+                //continuously move snake to right
+                clearInterval(movingRight)
+                moveRight();
+                movingRight = setInterval(function(){
+                    moveRight();
+                },rate);
+                lastMove = 'right'
+                
+                clearInterval(movingLeft);
+                clearInterval(movingUp);
+                clearInterval(movingDown);
+            }
+        
+        // down arrow
+            if ((e.keyCode || e.which) == 40&&lastMove!='up'){
+                clearInterval(movingDown)
+                moveDown();
+                movingDown = setInterval(function(){
+                    moveDown();
+                },rate);
+                lastMove = 'down'
+              
+                clearInterval(movingRight);
+                clearInterval(movingLeft);
+                clearInterval(movingUp);
+            }
+          // UP arrow
+            if ((e.keyCode || e.which) == 38&& lastMove!='down'){
+                clearInterval(movingUp)
+                moveUp();
+                movingUp = setInterval(function(){
+                    moveUp();
+                },rate);
+                lastMove = 'up'
+              
+                clearInterval(movingRight);
+                clearInterval(movingLeft);
+                clearInterval(movingDown);
+            }
+            
+         
+        })
+      });
+      
+      
+      
+      
+    </script>
+  </head>
+  <body>    
+    <table border="0" style="width:250px" bgcolor="">
+      <tr id='0x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='1x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='2x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='3x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='4x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='5x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='6x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='7x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='8x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+      <tr id='9x'>
+        <td id='0c'></td>
+        <td id='1c'></td>
+        <td id='2c'></td>
+        <td id='3c'></td>
+        <td id='4c'></td>
+        <td id='5c'></td>
+        <td id='6c'></td>
+        <td id='7c'></td>
+        <td id='8c'></td>
+        <td id='9c'></td>
+      </tr>
+     
+      
+      
+    </table>
+    
+    
+    <script>
+      drawSnake(currentSnake,mark);
+      generateFruit();  
+        
+      
+    </script>
+   
+    
+  </body>
+</html>
